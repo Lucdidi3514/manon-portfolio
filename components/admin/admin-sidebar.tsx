@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Image, FolderOpen, MessageSquare, LogOut, Scissors } from 'lucide-react';
+import { Home, Image, FolderOpen, LogOut, Scissors } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/supabase/auth-actions';
 import { toast } from 'sonner';
@@ -12,7 +12,6 @@ const navigation = [
   { name: 'Übersicht', href: '/admin', icon: Home },
   { name: 'Kreationen', href: '/admin/creations', icon: Image },
   { name: 'Kategorien', href: '/admin/categories', icon: FolderOpen },
-  { name: 'Nachrichten', href: '/admin/messages', icon: MessageSquare },
 ];
 
 export function AdminSidebar() {

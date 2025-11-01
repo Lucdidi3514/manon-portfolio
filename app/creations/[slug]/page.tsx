@@ -3,9 +3,7 @@ import { notFound } from 'next/navigation';
 import { Container } from '@/components/layout/container';
 import { ImageCarousel } from '@/components/creations/image-carousel';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { ShareButtons } from '@/components/creations/share-buttons';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getCreationBySlug, getPublishedCreations } from '@/lib/supabase/queries';
 import { Metadata } from 'next';
@@ -130,56 +128,6 @@ async function CreationContent({ slug }: { slug: string }) {
               <p className="text-muted-foreground leading-relaxed">
                 {creation.description}
               </p>
-            </div>
-
-            {creation.materials.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-2">Materials</h3>
-                <div className="flex flex-wrap gap-2">
-                  {creation.materials.map((material, index) => (
-                    <Badge key={index} variant="outline">
-                      {material}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {creation.sizes.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-2">Sizes</h3>
-                <div className="flex flex-wrap gap-2">
-                  {creation.sizes.map((size, index) => (
-                    <Badge key={index} variant="outline">
-                      {size}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {creation.colors.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-2">Colors</h3>
-                <div className="flex flex-wrap gap-2">
-                  {creation.colors.map((color, index) => (
-                    <Badge key={index} variant="outline">
-                      {color}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="pt-6 border-t">
-              <h3 className="font-semibold mb-4">Share this creation</h3>
-              <ShareButtons title={creation.title} />
-            </div>
-
-            <div className="pt-6">
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href="/contact">Get in Touch</Link>
-              </Button>
             </div>
           </div>
         </div>

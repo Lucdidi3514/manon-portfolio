@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { createClient } from '@/lib/supabase/server';
-import { Plus, Image, FolderOpen, MessageSquare, Eye } from 'lucide-react';
+import { Plus, Image, FolderOpen, Eye } from 'lucide-react';
 
 async function getDashboardStats() {
   const supabase = createClient();
@@ -14,13 +14,11 @@ async function getDashboardStats() {
     { count: publishedCreations },
     { count: draftCreations },
     { count: totalCategories },
-    { count: unreadMessages },
   ] = await Promise.all([
     supabase.from('creations').select('*', { count: 'exact', head: true }),
     supabase.from('creations').select('*', { count: 'exact', head: true }).eq('status', 'published'),
     supabase.from('creations').select('*', { count: 'exact', head: true }).eq('status', 'draft'),
     supabase.from('categories').select('*', { count: 'exact', head: true }),
-    supabase.from('contact_submissions').select('*', { count: 'exact', head: true }).eq('read', false),
   ]);
 
   return {
@@ -28,7 +26,6 @@ async function getDashboardStats() {
     publishedCreations: publishedCreations || 0,
     draftCreations: draftCreations || 0,
     totalCategories: totalCategories || 0,
-    unreadMessages: unreadMessages || 0,
   };
 }
 
@@ -83,7 +80,7 @@ async function DashboardContent() {
         </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Kreationen gesamt</CardTitle>
@@ -117,19 +114,6 @@ async function DashboardContent() {
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalCategories}</div>
             <p className="text-xs text-muted-foreground">Organisieren Sie Ihre Arbeit</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ungelesene Nachrichten</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.unreadMessages}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.unreadMessages > 0 ? 'Benötigt Ihre Aufmerksamkeit' : 'Alles erledigt!'}
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -190,12 +174,6 @@ async function DashboardContent() {
               <Link href="/admin/categories">
                 <FolderOpen className="mr-2 h-4 w-4" />
                 Kategorien verwalten
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full justify-start h-11">
-              <Link href="/admin/messages">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Nachrichten ansehen
               </Link>
             </Button>
             <Button asChild variant="outline" className="w-full justify-start h-11">

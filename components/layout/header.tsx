@@ -10,8 +10,6 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Startseite', href: '/' },
   { name: 'Kreationen', href: '/creations' },
-  { name: 'Über mich', href: '/about' },
-  { name: 'Kontakt', href: '/contact' },
 ];
 
 export function Header() {

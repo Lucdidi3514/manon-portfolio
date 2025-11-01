@@ -93,22 +93,6 @@ export function EditCreationForm({ creation }: EditCreationFormProps) {
         return;
       }
 
-      // Parse comma-separated values
-      const materials = (formData.get('materials') as string || '')
-        .split(',')
-        .map(m => m.trim())
-        .filter(m => m);
-
-      const sizes = (formData.get('sizes') as string || '')
-        .split(',')
-        .map(s => s.trim())
-        .filter(s => s);
-
-      const colors = (formData.get('colors') as string || '')
-        .split(',')
-        .map(c => c.trim())
-        .filter(c => c);
-
       // Delete removed images from storage
       if (imagesToDelete.length > 0) {
         for (const imageId of imagesToDelete) {
@@ -127,9 +111,9 @@ export function EditCreationForm({ creation }: EditCreationFormProps) {
         title: formData.get('title') as string,
         description: formData.get('description') as string || '',
         category_id: selectedCategory || null,
-        materials,
-        sizes,
-        colors,
+        materials: [],
+        sizes: [],
+        colors: [],
         featured,
         status: published ? 'published' : 'draft',
         images: images.map((img) => ({
@@ -219,41 +203,6 @@ export function EditCreationForm({ creation }: EditCreationFormProps) {
                   rows={6}
                   defaultValue={creation.description || ''}
                 />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="materials">Materialien</Label>
-                  <Input
-                    id="materials"
-                    name="materials"
-                    placeholder="z.B. Baumwolle, Leinen"
-                    defaultValue={creation.materials.join(', ')}
-                  />
-                  <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="sizes">Größen</Label>
-                  <Input
-                    id="sizes"
-                    name="sizes"
-                    placeholder="z.B. Klein, Mittel, Groß"
-                    defaultValue={creation.sizes.join(', ')}
-                  />
-                  <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="colors">Farben</Label>
-                  <Input
-                    id="colors"
-                    name="colors"
-                    placeholder="z.B. Blau, Weiß, Rot"
-                    defaultValue={creation.colors.join(', ')}
-                  />
-                  <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
-                </div>
               </div>
             </CardContent>
           </Card>

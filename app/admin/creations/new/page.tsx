@@ -55,29 +55,13 @@ export default function NewCreationPage() {
         return;
       }
 
-      // Parse comma-separated values
-      const materials = (formData.get('materials') as string || '')
-        .split(',')
-        .map(m => m.trim())
-        .filter(m => m);
-
-      const sizes = (formData.get('sizes') as string || '')
-        .split(',')
-        .map(s => s.trim())
-        .filter(s => s);
-
-      const colors = (formData.get('colors') as string || '')
-        .split(',')
-        .map(c => c.trim())
-        .filter(c => c);
-
       const result = await createCreation({
         title: formData.get('title') as string,
         description: formData.get('description') as string || '',
         category_id: selectedCategory || undefined,
-        materials,
-        sizes,
-        colors,
+        materials: [],
+        sizes: [],
+        colors: [],
         featured,
         status: published ? 'published' : 'draft',
         images,
@@ -157,38 +141,6 @@ export default function NewCreationPage() {
                   placeholder="Beschreiben Sie Ihre Kreation im Detail..."
                   rows={6}
                 />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="materials">Materialien</Label>
-                  <Input
-                    id="materials"
-                    name="materials"
-                    placeholder="z.B. Baumwolle, Leinen"
-                  />
-                  <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="sizes">Größen</Label>
-                  <Input
-                    id="sizes"
-                    name="sizes"
-                    placeholder="z.B. Klein, Mittel, Groß"
-                  />
-                  <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="colors">Farben</Label>
-                  <Input
-                    id="colors"
-                    name="colors"
-                    placeholder="z.B. Blau, Weiß, Rot"
-                  />
-                  <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
-                </div>
               </div>
             </CardContent>
           </Card>
