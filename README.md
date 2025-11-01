@@ -144,7 +144,7 @@ Ce projet est personnel et n'accepte pas de contributions externes.
 
 ## 📄 Licence
 
-Tous droits réservés © 2024 Atelier Manon
+Tous droits réservés © 2025 Luc Didion
 
 ## 💡 Support
 
@@ -152,4 +152,4 @@ Pour toute question ou assistance, consulter la [documentation Next.js](https://
 
 ---
 
-Fait avec ❤️ et [Claude Code](https://claude.com/claude-code)
+Fait avec ❤️ par Luc et [Claude Code](https://claude.com/claude-code)
