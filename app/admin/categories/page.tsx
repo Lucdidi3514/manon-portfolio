@@ -7,7 +7,16 @@ import { DeleteCategoryButton } from '@/components/admin/delete-category-button'
 
 export const dynamic = 'force-dynamic';
 
-async function getCategories() {
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  display_order: number;
+  creations?: any[];
+}
+
+async function getCategories(): Promise<Category[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
@@ -20,7 +29,7 @@ async function getCategories() {
     return [];
   }
 
-  return data;
+  return (data || []) as Category[];
 }
 
 export default async function CategoriesPage() {

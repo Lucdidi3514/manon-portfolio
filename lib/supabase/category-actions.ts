@@ -41,18 +41,19 @@ export async function createCategory(input: CreateCategoryInput) {
         .order('display_order', { ascending: false })
         .limit(1);
 
-      displayOrder = categories && categories.length > 0 ? categories[0].display_order + 1 : 1;
+      displayOrder = categories && categories.length > 0 ? (categories[0] as any).display_order + 1 : 1;
     }
 
     const { data, error } = await supabase
       .from('categories')
+      // @ts-ignore - TypeScript has trouble with Supabase insert type inference
       .insert({
         name: input.name,
         slug,
         description: input.description || '',
         image_url: input.image_url || null,
         display_order: displayOrder,
-      })
+      } as any)
       .select()
       .single();
 
@@ -92,7 +93,8 @@ export async function updateCategory(input: UpdateCategoryInput) {
 
     const { data, error } = await supabase
       .from('categories')
-      .update(updateData)
+      // @ts-ignore - TypeScript has trouble with Supabase update type inference
+      .update(updateData as any)
       .eq('id', input.id)
       .select()
       .single();
