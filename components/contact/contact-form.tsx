@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { submitContactForm } from '@/lib/supabase/queries';
+import { submitContactForm } from '@/lib/supabase/contact-actions';
 import { Loader2 } from 'lucide-react';
 
 const contactSchema = z.object({
@@ -36,9 +36,14 @@ export function ContactForm() {
     setIsSubmitting(true);
 
     try {
-      await submitContactForm(data);
-      toast.success('Nachricht erfolgreich gesendet! Ich melde mich bald bei Ihnen.');
-      reset();
+      const result = await submitContactForm(data);
+
+      if (result.success) {
+        toast.success('Nachricht erfolgreich gesendet! Ich melde mich bald bei Ihnen.');
+        reset();
+      } else {
+        toast.error(result.error || 'Nachricht konnte nicht gesendet werden.');
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error('Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.');

@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { Container } from '@/components/layout/container';
-import { ImageGallery } from '@/components/creations/image-gallery';
+import { ImageCarousel } from '@/components/creations/image-carousel';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -109,7 +109,7 @@ async function CreationContent({ slug }: { slug: string }) {
       <Container className="py-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           <div>
-            <ImageGallery images={creation.images} title={creation.title} />
+            <ImageCarousel images={creation.images} title={creation.title} />
           </div>
 
           <div className="space-y-6">

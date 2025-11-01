@@ -22,21 +22,22 @@ export function CategoryCard({ category, creationCount }: CategoryCardProps) {
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             />
           ) : (
-            <div className="flex h-full items-center justify-center">
-              <span className="text-muted-foreground">No image</span>
+            <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+              <div className="text-6xl opacity-20">🎨</div>
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-            <h3 className="text-xl font-semibold text-white drop-shadow-lg">
-              {category.name}
-            </h3>
-            {creationCount !== undefined && (
-              <p className="mt-2 text-sm text-white/90 drop-shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {creationCount} {creationCount === 1 ? 'creation' : 'creations'}
-              </p>
-            )}
-          </div>
+        </div>
+
+        <div className="p-4 text-center space-y-1">
+          <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+            {category.name}
+          </h3>
+          {creationCount !== undefined && (
+            <p className="text-sm text-muted-foreground">
+              {creationCount} {creationCount === 1 ? 'Kreation' : 'Kreationen'}
+            </p>
+          )}
         </div>
       </Card>
     </Link>

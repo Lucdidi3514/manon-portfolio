@@ -69,13 +69,13 @@ async function DashboardContent() {
   const recentCreations = await getRecentCreations();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Übersicht</h1>
           <p className="text-muted-foreground">Willkommen zurück! Hier ist eine Übersicht Ihres Ateliers.</p>
         </div>
-        <Button asChild>
+        <Button asChild size="lg">
           <Link href="/admin/creations/new">
             <Plus className="mr-2 h-4 w-4" />
             Neue Kreation
@@ -83,11 +83,12 @@ async function DashboardContent() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Kreationen gesamt</CardTitle>
-            <Image className="h-4 w-4 text-muted-foreground" />
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            <Image className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalCreations}</div>
@@ -133,7 +134,7 @@ async function DashboardContent() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Neueste Kreationen</CardTitle>
@@ -143,12 +144,12 @@ async function DashboardContent() {
             {recentCreations.length === 0 ? (
               <p className="text-sm text-muted-foreground">Noch keine Kreationen. Erstellen Sie Ihre erste!</p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {recentCreations.map((creation) => (
                   <div key={creation.id} className="flex items-center justify-between">
                     <div>
                       <Link
-                        href={`/admin/creations/${creation.id}`}
+                        href={`/admin/creations/${creation.id}/edit`}
                         className="font-medium hover:text-primary transition-colors"
                       >
                         {creation.title}
@@ -178,26 +179,26 @@ async function DashboardContent() {
             <CardTitle>Schnellzugriff</CardTitle>
             <CardDescription>Häufige Aufgaben und Abkürzungen</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <Button asChild variant="outline" className="w-full justify-start">
+          <CardContent className="space-y-3">
+            <Button asChild variant="outline" className="w-full justify-start h-11">
               <Link href="/admin/creations/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Neue Kreation erstellen
               </Link>
             </Button>
-            <Button asChild variant="outline" className="w-full justify-start">
+            <Button asChild variant="outline" className="w-full justify-start h-11">
               <Link href="/admin/categories">
                 <FolderOpen className="mr-2 h-4 w-4" />
                 Kategorien verwalten
               </Link>
             </Button>
-            <Button asChild variant="outline" className="w-full justify-start">
+            <Button asChild variant="outline" className="w-full justify-start h-11">
               <Link href="/admin/messages">
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Nachrichten ansehen
               </Link>
             </Button>
-            <Button asChild variant="outline" className="w-full justify-start">
+            <Button asChild variant="outline" className="w-full justify-start h-11">
               <Link href="/" target="_blank">
                 <Eye className="mr-2 h-4 w-4" />
                 Webseite ansehen

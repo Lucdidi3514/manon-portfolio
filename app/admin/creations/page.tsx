@@ -60,13 +60,13 @@ async function CreationsContent() {
   const creations = await getCreations();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Kreationen</h1>
           <p className="text-muted-foreground">Verwalten Sie Ihre handgefertigten Kreationen</p>
         </div>
-        <Button asChild>
+        <Button asChild size="lg">
           <Link href="/admin/creations/new">
             <Plus className="mr-2 h-4 w-4" />
             Neue Kreation
@@ -121,7 +121,7 @@ async function CreationsContent() {
               <CardContent>
                 <div className="flex gap-2">
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/admin/creations/${creation.id}`}>
+                    <Link href={`/admin/creations/${creation.id}/edit`}>
                       <Edit className="mr-2 h-4 w-4" />
                       Bearbeiten
                     </Link>

@@ -1,0 +1,224 @@
+================================================================================
+        PORTFOLIO-MANON DATABASE SETUP CHECKLIST
+================================================================================
+
+Project: oiyeelnxgefhocajqdfh
+URL:     https://oiyeelnxgefhocajqdfh.supabase.co
+
+================================================================================
+OPTION 1: QUICK SETUP (All-in-One - RECOMMENDED)
+================================================================================
+
+☐ 1. Go to Supabase Dashboard → SQL Editor
+      https://supabase.com/dashboard/project/oiyeelnxgefhocajqdfh
+
+☐ 2. Open file: supabase/ALL-MIGRATIONS-COMBINED.sql
+
+☐ 3. Copy ENTIRE file → Paste in SQL Editor → Click "Run"
+
+☐ 4. Wait for success message (~30 seconds)
+
+================================================================================
+OPTION 2: STEP-BY-STEP (Run Each Migration Separately)
+================================================================================
+
+☐ 1. Go to Supabase Dashboard → SQL Editor
+
+☐ 2. Run Migration 1:
+     File: supabase/migrations/20251028191355_create_initial_schema.sql
+     Copy → Paste → Run
+
+☐ 3. Run Migration 2:
+     File: supabase/migrations/20251029193942_fix_security_issues.sql
+     New Query → Copy → Paste → Run
+
+☐ 4. Run Migration 3:
+     File: supabase/migrations/20251030114756_fix_performance_and_security_issues.sql
+     New Query → Copy → Paste → Run
+
+☐ 5. Run Migration 4:
+     File: supabase/migrations/20251030115412_document_indexes_and_password_policy.sql
+     New Query → Copy → Paste → Run
+
+================================================================================
+VERIFY SETUP
+================================================================================
+
+☐ Go to: Database → Tables
+
+☐ Confirm these tables exist:
+  ☐ categories
+  ☐ creations
+  ☐ creation_images
+  ☐ contact_submissions
+
+☐ Each table should show "RLS enabled" badge
+
+================================================================================
+CREATE ADMIN USER
+================================================================================
+
+☐ Go to: Authentication → Users
+
+☐ Click "Add user" or "Invite user"
+
+☐ Fill in:
+  Email:    _______________________
+  Password: _______________________
+  ✓ Check "Auto Confirm User"
+
+☐ Click "Create user"
+
+☐ Note: Write down your credentials!
+
+================================================================================
+CONFIGURE AUTHENTICATION
+================================================================================
+
+☐ Go to: Authentication → URL Configuration
+
+☐ Set Site URL:
+  For now: http://localhost:3000
+  Later:   https://your-production-domain.com
+
+☐ Add Redirect URLs:
+  ☐ http://localhost:3000/**
+  ☐ http://localhost:3000/admin/**
+
+☐ Click Save
+
+================================================================================
+OPTIONAL: STORAGE SETUP (for image uploads)
+================================================================================
+
+☐ Go to: Storage
+
+☐ Click "New bucket"
+
+☐ Bucket name: creations
+
+☐ Check "Public bucket"
+
+☐ Click "Create bucket"
+
+☐ Go to SQL Editor and run:
+
+    CREATE POLICY "Public Access"
+    ON storage.objects FOR SELECT
+    TO public
+    USING ( bucket_id = 'creations' );
+
+    CREATE POLICY "Authenticated users can upload"
+    ON storage.objects FOR INSERT
+    TO authenticated
+    WITH CHECK ( bucket_id = 'creations' );
+
+    CREATE POLICY "Authenticated users can delete"
+    ON storage.objects FOR DELETE
+    TO authenticated
+    USING ( bucket_id = 'creations' );
+
+================================================================================
+TEST YOUR SETUP
+================================================================================
+
+☐ Open terminal
+
+☐ Navigate to project:
+  cd /Users/lucdidion/Desktop/Projets/Portfolio-Manon
+
+☐ Run build:
+  npm run build
+
+  Expected: ✅ Build succeeds without database errors
+
+☐ Start development server:
+  npm run dev
+
+☐ Test admin access:
+  Open: http://localhost:3000/admin
+
+  Should redirect to: http://localhost:3000/admin/login
+
+☐ Login with your credentials
+
+  Expected: ✅ See admin dashboard
+
+☐ Test creating a category:
+  Go to: Admin → Kategorien → Neue Kategorie
+
+  Expected: ✅ Can create category
+
+================================================================================
+CHECKLIST COMPLETE WHEN:
+================================================================================
+
+☑ All migrations run successfully
+☑ 4 tables visible in Database → Tables
+☑ All tables have RLS enabled
+☑ Admin user created and confirmed
+☑ Auth URLs configured
+☑ npm run build succeeds
+☑ Can access http://localhost:3000
+☑ Can login to admin dashboard
+☑ Storage bucket created (optional)
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problem: "Table already exists"
+→ Tables were already created, you can skip or drop and re-run
+
+Problem: Build fails with "table not found"
+→ Migrations weren't run, go back to OPTION 1 or OPTION 2
+
+Problem: Can't login to admin
+→ Check Authentication → Users that user exists and email is confirmed
+
+Problem: Redirect loop on /admin
+→ Clear browser cookies and try again
+→ Check .env.local has correct SUPABASE credentials
+
+Problem: Images not loading
+→ Create storage bucket (see OPTIONAL: STORAGE SETUP)
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+☐ Read: DATABASE-SETUP-GUIDE.md (detailed instructions)
+
+☐ Read: QUICK-START-DATABASE.md (visual guide)
+
+☐ Add content via admin:
+  - Create 2-3 categories
+  - Add 3-5 creations
+  - Upload images
+
+☐ Deploy to production:
+  Read: DEPLOYMENT.md
+
+================================================================================
+HELP & DOCUMENTATION
+================================================================================
+
+DATABASE-SETUP-GUIDE.md          - Complete setup instructions
+QUICK-START-DATABASE.md          - Quick visual guide
+PRE-DEPLOYMENT-CHECKLIST.md      - Before deploying
+DEPLOYMENT.md                    - How to deploy
+ADMIN_SETUP.md                   - Admin user setup
+PRODUCTION-READY-SUMMARY.md      - What was fixed
+
+================================================================================
+
+Status: _______________
+Date:   _______________
+Time:   _______________
+
+Notes:
+_____________________________________________________________________________
+_____________________________________________________________________________
+_____________________________________________________________________________
+
+================================================================================

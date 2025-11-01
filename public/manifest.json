@@ -1,0 +1,16 @@
+{
+  "name": "Atelier - Handgefertigte Nähkreationen",
+  "short_name": "Atelier",
+  "description": "Entdecken Sie einzigartige handgefertigte Nähkreationen mit Liebe zum Detail",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B5CF6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

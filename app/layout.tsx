@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   title: 'Atelier - Handgefertigte Nähkreationen',
   description: 'Entdecken Sie einzigartige handgefertigte Nähkreationen mit Liebe zum Detail. Jedes Stück erzählt eine Geschichte durch Stoff und Faden.',
   keywords: ['handgefertigt', 'nähen', 'handwerk', 'kunsthandwerk', 'einzigartig', 'maßanfertigung'],
+  icons: {
+    icon: '/favicon.svg',
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({

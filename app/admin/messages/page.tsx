@@ -49,9 +49,9 @@ async function MessagesContent() {
   const unreadCount = messages.filter((m) => !m.read).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Nachrichten</h1>
           <p className="text-muted-foreground">
             Kontaktanfragen von Ihrer Webseite
@@ -72,7 +72,7 @@ async function MessagesContent() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {messages.map((message) => (
             <Card key={message.id} className={!message.read ? 'border-primary' : ''}>
               <CardHeader>

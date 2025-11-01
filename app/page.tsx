@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Suspense } from 'react';
 import { Container } from '@/components/layout/container';
 import { CreationCard } from '@/components/creations/creation-card';
@@ -48,10 +49,12 @@ async function HeroSection() {
             <div className="relative lg:h-[600px] h-[400px] rounded-2xl overflow-hidden shadow-2xl animate-fade-in">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />
               {featuredCreation.images[0] && (
-                <img
+                <Image
                   src={featuredCreation.images[0].url}
                   alt={featuredCreation.images[0].alt_text || featuredCreation.title}
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
+                  priority
                 />
               )}
             </div>

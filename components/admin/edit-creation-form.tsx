@@ -13,26 +13,64 @@ import { toast } from 'sonner';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { ImageUploadDrag, ImageInput } from '@/components/admin/image-upload-drag';
-import { createCreation, getCategories } from '@/lib/supabase/admin-actions';
+import { updateCreation, getCategories } from '@/lib/supabase/admin-actions';
+import { deleteImage } from '@/lib/supabase/storage-actions';
 
 interface Category {
   id: string;
   name: string;
 }
 
-export default function NewCreationPage() {
+interface Creation {
+  id: string;
+  title: string;
+  description: string | null;
+  category_id: string | null;
+  materials: string[];
+  sizes: string[];
+  colors: string[];
+  featured: boolean;
+  status: 'draft' | 'published';
+  creation_images: Array<{
+    id: string;
+    url: string;
+    alt_text: string;
+    is_primary: boolean;
+    display_order: number;
+  }>;
+}
+
+interface EditCreationFormProps {
+  creation: Creation;
+}
+
+export function EditCreationForm({ creation }: EditCreationFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [images, setImages] = useState<ImageInput[]>([]);
-  const [featured, setFeatured] = useState(false);
-  const [published, setPublished] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
+  const [featured, setFeatured] = useState(creation.featured);
+  const [published, setPublished] = useState(creation.status === 'published');
+  const [selectedCategory, setSelectedCategory] = useState<string>(creation.category_id || '');
 
   useEffect(() => {
     // Load categories
     getCategories().then(setCategories);
-  }, []);
+
+    // Convert existing images to ImageInput format
+    const existingImages: ImageInput[] = creation.creation_images
+      .sort((a, b) => a.display_order - b.display_order)
+      .map((img) => ({
+        id: img.id,
+        url: img.url,
+        alt_text: img.alt_text,
+        is_primary: img.is_primary,
+        display_order: img.display_order,
+      }));
+
+    setImages(existingImages);
+  }, [creation]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -71,28 +109,50 @@ export default function NewCreationPage() {
         .map(c => c.trim())
         .filter(c => c);
 
-      const result = await createCreation({
+      // Delete removed images from storage
+      if (imagesToDelete.length > 0) {
+        for (const imageId of imagesToDelete) {
+          const imageToDelete = creation.creation_images.find(img => img.id === imageId);
+          if (imageToDelete && imageToDelete.url) {
+            // Extract path from URL
+            const urlParts = imageToDelete.url.split('/');
+            const filename = urlParts[urlParts.length - 1];
+            await deleteImage(filename);
+          }
+        }
+      }
+
+      const result = await updateCreation({
+        id: creation.id,
         title: formData.get('title') as string,
         description: formData.get('description') as string || '',
-        category_id: selectedCategory || undefined,
+        category_id: selectedCategory || null,
         materials,
         sizes,
         colors,
         featured,
         status: published ? 'published' : 'draft',
-        images,
+        images: images.map((img) => ({
+          id: img.id,
+          url: img.url,
+          alt_text: img.alt_text,
+          is_primary: img.is_primary,
+          display_order: img.display_order,
+          path: img.path,
+        })),
+        imagesToDelete,
       });
 
       if (result.success) {
-        toast.success(`Kreation "${formData.get('title')}" erfolgreich erstellt!`);
+        toast.success(`Kreation "${formData.get('title')}" erfolgreich aktualisiert!`);
         router.push('/admin/creations');
         router.refresh();
       } else {
-        toast.error(result.error || 'Fehler beim Erstellen der Kreation');
+        toast.error(result.error || 'Fehler beim Aktualisieren der Kreation');
       }
     } catch (error) {
-      console.error('Error creating creation:', error);
-      toast.error('Fehler beim Erstellen der Kreation');
+      console.error('Error updating creation:', error);
+      toast.error('Fehler beim Aktualisieren der Kreation');
     } finally {
       setIsSubmitting(false);
     }
@@ -107,8 +167,8 @@ export default function NewCreationPage() {
           </Link>
         </Button>
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Neue Kreation</h1>
-          <p className="text-muted-foreground">Erstellen Sie eine neue handgefertigte Kreation</p>
+          <h1 className="text-3xl font-bold tracking-tight">Kreation bearbeiten</h1>
+          <p className="text-muted-foreground">Ändern Sie die Details dieser Kreation</p>
         </div>
       </div>
 
@@ -117,7 +177,7 @@ export default function NewCreationPage() {
           <Card>
             <CardHeader>
               <CardTitle>Grundinformationen</CardTitle>
-              <CardDescription>Geben Sie die wichtigsten Details Ihrer Kreation ein</CardDescription>
+              <CardDescription>Aktualisieren Sie die wichtigsten Details</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -126,6 +186,7 @@ export default function NewCreationPage() {
                   id="title"
                   name="title"
                   placeholder="z.B. Handgefertigte Tasche mit Blumenmuster"
+                  defaultValue={creation.title}
                   required
                 />
               </div>
@@ -156,6 +217,7 @@ export default function NewCreationPage() {
                   name="description"
                   placeholder="Beschreiben Sie Ihre Kreation im Detail..."
                   rows={6}
+                  defaultValue={creation.description || ''}
                 />
               </div>
 
@@ -166,6 +228,7 @@ export default function NewCreationPage() {
                     id="materials"
                     name="materials"
                     placeholder="z.B. Baumwolle, Leinen"
+                    defaultValue={creation.materials.join(', ')}
                   />
                   <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
                 </div>
@@ -176,6 +239,7 @@ export default function NewCreationPage() {
                     id="sizes"
                     name="sizes"
                     placeholder="z.B. Klein, Mittel, Groß"
+                    defaultValue={creation.sizes.join(', ')}
                   />
                   <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
                 </div>
@@ -186,6 +250,7 @@ export default function NewCreationPage() {
                     id="colors"
                     name="colors"
                     placeholder="z.B. Blau, Weiß, Rot"
+                    defaultValue={creation.colors.join(', ')}
                   />
                   <p className="text-sm text-muted-foreground">Durch Kommas getrennt</p>
                 </div>
@@ -197,7 +262,7 @@ export default function NewCreationPage() {
             <CardHeader>
               <CardTitle>Bilder</CardTitle>
               <CardDescription>
-                Ziehen Sie Ihre Bilder hierher oder klicken Sie, um sie auszuwählen
+                Verwalten Sie die Bilder dieser Kreation
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -227,9 +292,9 @@ export default function NewCreationPage() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="published">Sofort veröffentlichen</Label>
+                  <Label htmlFor="published">Veröffentlicht</Label>
                   <p className="text-sm text-muted-foreground">
-                    Andernfalls als Entwurf speichern
+                    Veröffentlichte Kreationen sind öffentlich sichtbar
                   </p>
                 </div>
                 <Switch
@@ -249,10 +314,10 @@ export default function NewCreationPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Wird erstellt...
+                  Wird aktualisiert...
                 </>
               ) : (
-                'Kreation erstellen'
+                'Änderungen speichern'
               )}
             </Button>
           </div>
