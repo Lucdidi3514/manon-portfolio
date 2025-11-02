@@ -53,4 +53,7 @@
   p {
     line-height: 1.7;
   }
+  img {
+    image-orientation: from-image;
+  }
 }
