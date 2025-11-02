@@ -12,6 +12,7 @@ Ce portfolio est conçu pour être simple et épuré, mettant en valeur les cré
 - **Galerie de créations** : Affichage élégant des œuvres avec images en carrousel
 - **Catégories** : Organisation des créations par thème
 - **Design responsive** : Expérience optimale sur mobile, tablette et desktop
+- **Orientation d'images optimisée** : Affichage correct des images sur tous les appareils
 - **Menu burger mobile** : Navigation intuitive avec fond opaque sur mobile/tablette
 - **Accès Admin direct** : Lien "Admin" accessible depuis le menu principal
 - **Performances optimales** : Chargement rapide avec Next.js 14
@@ -358,11 +359,16 @@ Tous droits réservés © 2025 Luc Didion
 **Erreur de compilation avec variable `extension`** : ✅ Corrigé
 - Variable renommée pour éviter les conflits
 
+**Images qui tournent sur mobile/tablette** : ✅ Corrigé
+- Implémentation de `image-orientation: from-image` en CSS
+- Respect des métadonnées EXIF d'orientation sur tous les appareils
+- Recommandation : Convertir les images HEIC en WebP pour une meilleure compatibilité
+
 ## 🎉 Remerciements
 
 Développé avec passion par Luc Didion avec l'assistance de [Claude Code](https://claude.com/claude-code).
 
 ---
 
-**Version actuelle** : 2.0.0
+**Version actuelle** : 2.0.1
 **Dernière mise à jour** : Novembre 2025
