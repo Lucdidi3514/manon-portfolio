@@ -22,9 +22,15 @@ export interface ImageInput {
 interface ImageUploadDragProps {
   images: ImageInput[];
   onChange: (images: ImageInput[]) => void;
+  onRemoveExisting?: (imageId: string) => void; // Callback when an existing image is removed
 }
 
-export function ImageUploadDrag({ images, onChange }: ImageUploadDragProps) {
+// Allowed image formats
+const ALLOWED_FORMATS = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+export function ImageUploadDrag({ images, onChange, onRemoveExisting }: ImageUploadDragProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
 
@@ -38,7 +44,43 @@ export function ImageUploadDrag({ images, onChange }: ImageUploadDragProps) {
     setIsDragging(false);
   }, []);
 
+  const validateFile = (file: File): { valid: boolean; error?: string } => {
+    // Check file type
+    if (!ALLOWED_FORMATS.includes(file.type)) {
+      return {
+        valid: false,
+        error: `Ungültiges Format: ${file.name}. Nur JPG, PNG und WebP sind erlaubt (max. 5MB).`
+      };
+    }
+
+    // Double-check extension
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+      return {
+        valid: false,
+        error: `Ungültige Dateierweiterung: ${file.name}. Nur .jpg, .jpeg, .png und .webp sind erlaubt.`
+      };
+    }
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      return {
+        valid: false,
+        error: `Datei zu groß: ${file.name} (${sizeMB}MB). Maximale Größe ist 5MB.`
+      };
+    }
+
+    return { valid: true };
+  };
+
   const uploadFile = async (file: File) => {
+    // Validate file before upload
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error || 'Ungültige Datei');
+      return;
+    }
     const formData = new FormData();
     formData.append('file', file);
 
@@ -64,18 +106,33 @@ export function ImageUploadDrag({ images, onChange }: ImageUploadDragProps) {
       e.preventDefault();
       setIsDragging(false);
 
-      const files = Array.from(e.dataTransfer.files).filter((file) =>
-        file.type.startsWith('image/')
-      );
+      const allFiles = Array.from(e.dataTransfer.files);
+      const validFiles: File[] = [];
+      const invalidFiles: string[] = [];
 
-      if (files.length === 0) {
-        toast.error('Keine gültigen Bilder gefunden');
+      // Validate each file
+      for (const file of allFiles) {
+        const validation = validateFile(file);
+        if (validation.valid) {
+          validFiles.push(file);
+        } else {
+          invalidFiles.push(validation.error || file.name);
+        }
+      }
+
+      // Show errors for invalid files
+      if (invalidFiles.length > 0) {
+        invalidFiles.forEach(error => toast.error(error));
+      }
+
+      if (validFiles.length === 0) {
+        toast.error('Keine gültigen Bilder gefunden. Nur JPG, PNG und WebP (max. 5MB) sind erlaubt.');
         return;
       }
 
-      setUploadingCount(files.length);
+      setUploadingCount(validFiles.length);
 
-      for (const file of files) {
+      for (const file of validFiles) {
         await uploadFile(file);
       }
 
@@ -85,18 +142,34 @@ export function ImageUploadDrag({ images, onChange }: ImageUploadDragProps) {
   );
 
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []).filter((file) =>
-      file.type.startsWith('image/')
-    );
+    const allFiles = Array.from(e.target.files || []);
+    const validFiles: File[] = [];
+    const invalidFiles: string[] = [];
 
-    if (files.length === 0) {
-      toast.error('Keine gültigen Bilder ausgewählt');
+    // Validate each file
+    for (const file of allFiles) {
+      const validation = validateFile(file);
+      if (validation.valid) {
+        validFiles.push(file);
+      } else {
+        invalidFiles.push(validation.error || file.name);
+      }
+    }
+
+    // Show errors for invalid files
+    if (invalidFiles.length > 0) {
+      invalidFiles.forEach(error => toast.error(error));
+    }
+
+    if (validFiles.length === 0) {
+      toast.error('Keine gültigen Bilder ausgewählt. Nur JPG, PNG und WebP (max. 5MB) sind erlaubt.');
+      e.target.value = ''; // Reset input
       return;
     }
 
-    setUploadingCount(files.length);
+    setUploadingCount(validFiles.length);
 
-    for (const file of files) {
+    for (const file of validFiles) {
       await uploadFile(file);
     }
 
@@ -107,8 +180,12 @@ export function ImageUploadDrag({ images, onChange }: ImageUploadDragProps) {
   const removeImage = async (index: number) => {
     const image = images[index];
 
-    // Delete from Supabase Storage if it has a path
-    if (image.path) {
+    // If it's an existing image (has DB id), notify parent for DB deletion
+    if (image.id && onRemoveExisting) {
+      onRemoveExisting(image.id);
+    }
+    // If it's a newly uploaded image (has path but no id), delete from storage
+    else if (image.path && !image.id) {
       const result = await deleteImage(image.path);
       if (!result.success) {
         toast.error('Fehler beim Löschen aus dem Speicher');
@@ -174,7 +251,7 @@ export function ImageUploadDrag({ images, onChange }: ImageUploadDragProps) {
         <input
           type="file"
           multiple
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
           onChange={handleFileInput}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           disabled={uploadingCount > 0}
@@ -201,8 +278,8 @@ export function ImageUploadDrag({ images, onChange }: ImageUploadDragProps) {
                 <p className="text-sm text-muted-foreground">
                   oder klicken Sie, um Dateien auszuwählen
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  JPG, PNG, WebP • Max 5MB pro Bild
+                <p className="text-xs text-muted-foreground font-medium">
+                  Nur JPG, PNG oder WebP • Max 5MB pro Bild
                 </p>
               </div>
             </>

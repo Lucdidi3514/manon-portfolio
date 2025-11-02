@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Edit, Eye, Trash2 } from 'lucide-react';
+import { Plus, Edit, Eye } from 'lucide-react';
+import { DeleteCreationButton } from '@/components/admin/delete-creation-button';
 
 interface Creation {
   id: string;
@@ -61,12 +62,12 @@ async function CreationsContent() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Kreationen</h1>
-          <p className="text-muted-foreground">Verwalten Sie Ihre handgefertigten Kreationen</p>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Kreationen</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Verwalten Sie Ihre handgefertigten Kreationen</p>
         </div>
-        <Button asChild size="lg">
+        <Button asChild size="lg" className="w-full sm:w-auto">
           <Link href="/admin/creations/new">
             <Plus className="mr-2 h-4 w-4" />
             Neue Kreation
@@ -99,15 +100,15 @@ async function CreationsContent() {
                         <Badge variant="secondary">Hervorgehoben</Badge>
                       )}
                     </div>
-                    <CardDescription>
+                    <CardDescription className="flex flex-col sm:flex-row sm:gap-4 gap-1">
                       {creation.category?.name && (
-                        <span className="mr-4">Kategorie: {creation.category.name}</span>
+                        <span>Kategorie: {creation.category.name}</span>
                       )}
                       <span>
                         Erstellt: {new Date(creation.created_at).toLocaleDateString('de-DE')}
                       </span>
                       {creation.published_at && (
-                        <span className="ml-4">
+                        <span>
                           Veröffentlicht: {new Date(creation.published_at).toLocaleDateString('de-DE')}
                         </span>
                       )}
@@ -134,6 +135,10 @@ async function CreationsContent() {
                       </Link>
                     </Button>
                   )}
+                  <DeleteCreationButton
+                    creationId={creation.id}
+                    creationTitle={creation.title}
+                  />
                 </div>
               </CardContent>
             </Card>

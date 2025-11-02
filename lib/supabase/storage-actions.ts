@@ -4,6 +4,11 @@ import { createClient } from '@/lib/supabase/server';
 
 const BUCKET_NAME = 'photos-article';
 
+// Allowed image formats
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 /**
  * Upload an image file to Supabase Storage
  */
@@ -25,22 +30,37 @@ export async function uploadImage(formData: FormData) {
       return { success: false, error: 'Aucun fichier fourni' };
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return { success: false, error: 'Le fichier doit être une image' };
+    // Validate file type - strict format check
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return {
+        success: false,
+        error: `Format non autorisé: ${file.type}. Seuls JPG, PNG et WebP sont acceptés (max 5MB).`
+      };
+    }
+
+    // Validate file extension as additional security
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+      return {
+        success: false,
+        error: `Extension non autorisée: .${extension}. Seuls .jpg, .jpeg, .png et .webp sont acceptés.`
+      };
     }
 
     // Validate file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      return { success: false, error: 'L\'image est trop grande (max 5MB)' };
+    if (file.size > MAX_FILE_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      return {
+        success: false,
+        error: `Image trop grande: ${sizeMB}MB. Taille maximale autorisée: 5MB.`
+      };
     }
 
     // Generate unique filename
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 15);
-    const extension = file.name.split('.').pop();
-    const filename = `${timestamp}-${randomString}.${extension}`;
+    const fileExtension = file.name.split('.').pop();
+    const filename = `${timestamp}-${randomString}.${fileExtension}`;
 
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage

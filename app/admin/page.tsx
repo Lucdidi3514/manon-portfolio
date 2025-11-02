@@ -67,12 +67,12 @@ async function DashboardContent() {
 
   return (
     <div className="space-y-10">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Übersicht</h1>
-          <p className="text-muted-foreground">Willkommen zurück! Hier ist eine Übersicht Ihres Ateliers.</p>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Übersicht</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Willkommen zurück! Hier ist eine Übersicht Ihres Ateliers.</p>
         </div>
-        <Button asChild size="lg">
+        <Button asChild size="lg" className="w-full sm:w-auto">
           <Link href="/admin/creations/new">
             <Plus className="mr-2 h-4 w-4" />
             Neue Kreation

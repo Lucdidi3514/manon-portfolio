@@ -297,3 +297,94 @@ export async function updateCreation(input: UpdateCreationInput) {
     };
   }
 }
+
+/**
+ * Delete a creation and all its associated images
+ */
+export async function deleteCreation(creationId: string) {
+  const supabase = createClient();
+
+  try {
+    console.log('Deleting creation:', creationId);
+
+    // Check authentication
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      console.error('User not authenticated');
+      return { success: false, error: 'Nicht authentifiziert' };
+    }
+
+    // Get all images for this creation to delete from storage
+    const { data: images, error: imagesError } = await supabase
+      .from('creation_images')
+      .select('url')
+      .eq('creation_id', creationId);
+
+    if (imagesError) {
+      console.error('Error fetching images for deletion:', imagesError);
+    }
+
+    // Delete images from Supabase Storage
+    if (images && images.length > 0) {
+      const { deleteImage: deleteImageFn } = await import('./storage-actions');
+
+      for (const image of images) {
+        if (image.url) {
+          // Extract filename from URL
+          const urlParts = image.url.split('/');
+          const filename = urlParts[urlParts.length - 1];
+
+          if (filename && !filename.includes('?')) {
+            const result = await deleteImageFn(filename);
+            if (!result.success) {
+              console.warn(`Failed to delete image ${filename} from storage:`, result.error);
+            }
+          }
+        }
+      }
+    }
+
+    // Delete creation_images (will cascade if DB is set up, but doing it explicitly)
+    const { error: deleteImagesError } = await supabase
+      .from('creation_images')
+      .delete()
+      .eq('creation_id', creationId);
+
+    if (deleteImagesError) {
+      console.error('Error deleting creation images:', deleteImagesError);
+      return {
+        success: false,
+        error: `Fehler beim Löschen der Bilder: ${deleteImagesError.message}`
+      };
+    }
+
+    // Delete the creation itself
+    const { error: deleteCreationError } = await supabase
+      .from('creations')
+      .delete()
+      .eq('id', creationId);
+
+    if (deleteCreationError) {
+      console.error('Error deleting creation:', deleteCreationError);
+      return {
+        success: false,
+        error: `Fehler beim Löschen der Kreation: ${deleteCreationError.message}`
+      };
+    }
+
+    // Revalidate paths
+    revalidatePath('/');
+    revalidatePath('/creations');
+    revalidatePath('/admin/creations');
+
+    console.log('Creation deleted successfully');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Unexpected error in deleteCreation:', error);
+    return {
+      success: false,
+      error: `Unerwarteter Fehler: ${error?.message || 'Unbekannter Fehler'}`
+    };
+  }
+}

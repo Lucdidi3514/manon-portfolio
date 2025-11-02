@@ -98,10 +98,16 @@ export function EditCreationForm({ creation }: EditCreationFormProps) {
         for (const imageId of imagesToDelete) {
           const imageToDelete = creation.creation_images.find(img => img.id === imageId);
           if (imageToDelete && imageToDelete.url) {
-            // Extract path from URL
+            // Extract filename from URL (last segment after splitting by '/')
             const urlParts = imageToDelete.url.split('/');
             const filename = urlParts[urlParts.length - 1];
-            await deleteImage(filename);
+            // Only try to delete if we have a valid filename
+            if (filename && !filename.includes('?')) {
+              const result = await deleteImage(filename);
+              if (!result.success) {
+                console.warn(`Failed to delete image ${filename} from storage:`, result.error);
+              }
+            }
           }
         }
       }
@@ -215,7 +221,13 @@ export function EditCreationForm({ creation }: EditCreationFormProps) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ImageUploadDrag images={images} onChange={setImages} />
+              <ImageUploadDrag
+                images={images}
+                onChange={setImages}
+                onRemoveExisting={(imageId) => {
+                  setImagesToDelete([...imagesToDelete, imageId]);
+                }}
+              />
             </CardContent>
           </Card>
 

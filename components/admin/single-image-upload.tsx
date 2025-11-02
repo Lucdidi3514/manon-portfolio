@@ -10,6 +10,11 @@ import { toast } from 'sonner';
 import { uploadImage, deleteImage } from '@/lib/supabase/storage-actions';
 import Image from 'next/image';
 
+// Allowed image formats
+const ALLOWED_FORMATS = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 interface SingleImageUploadProps {
   imageUrl: string | null;
   onChange: (url: string | null, path?: string) => void;
@@ -30,14 +35,26 @@ export function SingleImageUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Bitte wählen Sie eine gültige Bilddatei');
+    // Validate file type
+    if (!ALLOWED_FORMATS.includes(file.type)) {
+      toast.error(`Ungültiges Format. Nur JPG, PNG und WebP sind erlaubt (max. 5MB).`);
+      e.target.value = ''; // Reset input
       return;
     }
 
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      toast.error('Das Bild ist zu groß (max 5MB)');
+    // Validate file extension
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+      toast.error(`Ungültige Dateierweiterung. Nur .jpg, .jpeg, .png und .webp sind erlaubt.`);
+      e.target.value = ''; // Reset input
+      return;
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      toast.error(`Datei zu groß: ${sizeMB}MB. Maximale Größe ist 5MB.`);
+      e.target.value = ''; // Reset input
       return;
     }
 
@@ -119,7 +136,7 @@ export function SingleImageUpload({
         <div className="relative border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
           <input
             type="file"
-            accept="image/*"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
             onChange={handleFileInput}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             disabled={isUploading}
@@ -138,8 +155,8 @@ export function SingleImageUpload({
                   <p className="text-sm font-medium">
                     Klicken Sie hier, um ein Bild auszuwählen
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    JPG, PNG, WebP • Max 5MB
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Nur JPG, PNG oder WebP • Max 5MB
                   </p>
                 </div>
               </>

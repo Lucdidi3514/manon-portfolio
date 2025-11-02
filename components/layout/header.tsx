@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Startseite', href: '/' },
   { name: 'Kreationen', href: '/creations' },
+  { name: 'Admin', href: '/admin' },
 ];
 
 export function Header() {
@@ -25,16 +26,7 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [mobileMenuOpen]);
+  // Note: Scroll blocking removed to allow page navigation while menu is open
 
   return (
     <header
@@ -78,24 +70,62 @@ export function Header() {
       </Container>
 
       {mobileMenuOpen && (
-        <div className="md:hidden animate-slide-in">
-          <div className="fixed inset-0 top-16 z-50 bg-background">
-            <Container className="py-6">
-              <div className="space-y-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="block rounded-lg px-4 py-3 text-base font-medium text-foreground/80 hover:bg-muted hover:text-primary transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            </Container>
+        <>
+          {/* Overlay de fond blanc avec z-index maximum absolu */}
+          <div
+            className="md:hidden"
+            style={{
+              position: 'fixed',
+              top: '64px',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: '#ffffff',
+              zIndex: 2147483647, // Z-index maximum possible en CSS
+              width: '100vw',
+              height: 'calc(100vh - 64px)',
+              overflow: 'auto',
+            }}
+          >
+            {/* Contenu du menu */}
+            <div
+              style={{
+                backgroundColor: '#ffffff',
+                paddingTop: '24px',
+                paddingBottom: '24px',
+                minHeight: '100%',
+              }}
+            >
+              <Container>
+                <div className="space-y-1">
+                  {navigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="block rounded-lg px-4 py-3 text-base font-medium transition-colors"
+                      style={{
+                        color: '#0f172a',
+                        fontSize: '16px',
+                        fontWeight: '500',
+                        position: 'relative',
+                        zIndex: 2147483647,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f1f5f9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </Container>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   );

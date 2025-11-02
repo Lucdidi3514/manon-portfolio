@@ -37,14 +37,14 @@ export default async function CategoriesPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Kategorien</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Kategorien</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Verwalten Sie Ihre Produktkategorien
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/admin/categories/new">
             <Plus className="h-4 w-4 mr-2" />
             Neue Kategorie
@@ -92,27 +92,27 @@ export default async function CategoriesPage() {
                 return (
                   <div
                     key={category.id}
-                    className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
-                    <div className="cursor-move text-muted-foreground hover:text-foreground">
+                    <div className="hidden sm:block cursor-move text-muted-foreground hover:text-foreground">
                       <GripVertical className="h-5 w-5" />
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-semibold truncate">{category.name}</h3>
-                        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full flex-shrink-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                        <h3 className="font-semibold">{category.name}</h3>
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full w-fit">
                           {creationCount} {creationCount === 1 ? 'Kreation' : 'Kreationen'}
                         </span>
                       </div>
                       {category.description && (
-                        <p className="text-sm text-muted-foreground truncate mt-1">
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                           {category.description}
                         </p>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 self-end sm:self-center">
                       <Button asChild variant="ghost" size="sm">
                         <Link href={`/admin/categories/${category.id}/edit`}>
                           <Pencil className="h-4 w-4" />
