@@ -329,7 +329,8 @@ export async function deleteCreation(creationId: string) {
     if (images && images.length > 0) {
       const { deleteImage: deleteImageFn } = await import('./storage-actions');
 
-      for (const image of images) {
+      // Type assertion to help TypeScript understand the shape of images
+      for (const image of images as { url: string }[]) {
         if (image.url) {
           // Extract filename from URL
           const urlParts = image.url.split('/');
