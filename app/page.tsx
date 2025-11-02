@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Suspense } from 'react';
 import { Container } from '@/components/layout/container';
 import { CreationCard } from '@/components/creations/creation-card';
@@ -11,51 +10,31 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 
 export const revalidate = 60;
 
-async function HeroSection() {
-  const latestCreations = await getLatestCreations(1);
-  const featuredCreation = latestCreations[0];
-
+function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       <Container className="py-16 md:py-24 lg:py-32">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-          <div className="space-y-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-              <Sparkles className="h-4 w-4" />
-              Mit Liebe handgefertigt
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              Einzigartige Näh
-              <span className="block text-primary">Kreationen</span>
-            </h1>
-            <p className="text-lg text-muted-foreground md:text-xl max-w-2xl">
-              Entdecken Sie einzigartige handgefertigte Stücke mit Liebe zum Detail.
-              Jede Kreation erzählt eine besondere Geschichte durch Stoff und Faden.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="group">
-                <Link href="/creations">
-                  Kreationen entdecken
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </div>
+        <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+            <Sparkles className="h-4 w-4" />
+            Mit Liebe handgefertigt
           </div>
-
-          {featuredCreation && (
-            <div className="relative lg:h-[600px] h-[400px] rounded-2xl overflow-hidden shadow-2xl animate-fade-in">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />
-              {featuredCreation.images[0] && (
-                <Image
-                  src={featuredCreation.images[0].url}
-                  alt={featuredCreation.images[0].alt_text || featuredCreation.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              )}
-            </div>
-          )}
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+            Einzigartige Näh
+            <span className="block text-primary">Kreationen</span>
+          </h1>
+          <p className="text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto">
+            Entdecken Sie einzigartige handgefertigte Stücke mit Liebe zum Detail.
+            Jede Kreation erzählt eine besondere Geschichte durch Stoff und Faden.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="group">
+              <Link href="/creations">
+                Kreationen entdecken
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </Container>
     </section>
@@ -171,9 +150,7 @@ function LoadingSkeleton() {
 export default async function HomePage() {
   return (
     <>
-      <Suspense fallback={<LoadingSkeleton />}>
-        <HeroSection />
-      </Suspense>
+      <HeroSection />
 
       <Suspense fallback={<LoadingSkeleton />}>
         <CategoriesSection />
