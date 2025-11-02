@@ -9,6 +9,7 @@ Ce portfolio est conçu pour être simple et épuré, mettant en valeur les cré
 ## ✨ Fonctionnalités
 
 ### 📱 Interface publique
+- **Hero section épuré** : Design centré et minimaliste mettant l'accent sur le message principal
 - **Galerie de créations** : Affichage élégant des œuvres avec images en carrousel
 - **Catégories** : Organisation des créations par thème
 - **Design responsive** : Expérience optimale sur mobile, tablette et desktop
@@ -364,11 +365,17 @@ Tous droits réservés © 2025 Luc Didion
 - Respect des métadonnées EXIF d'orientation sur tous les appareils
 - Recommandation : Convertir les images HEIC en WebP pour une meilleure compatibilité
 
+**Hero section avec image inutile** : ✅ Amélioré
+- Suppression de l'image featured du hero section
+- Design centré et épuré mettant l'accent sur le message
+- Meilleure hiérarchie visuelle et focus sur le CTA
+- Chargement plus rapide (moins d'images à fetcher)
+
 ## 🎉 Remerciements
 
 Développé avec passion par Luc Didion avec l'assistance de [Claude Code](https://claude.com/claude-code).
 
 ---
 
-**Version actuelle** : 2.0.1
+**Version actuelle** : 2.1.0
 **Dernière mise à jour** : Novembre 2025
