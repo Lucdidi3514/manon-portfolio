@@ -72,7 +72,7 @@ export function ImageUploadDrag({ images, onChange, onRemoveExisting }: ImageUpl
     return { valid: true };
   };
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = useCallback(async (file: File) => {
     // Validate file before upload
     const validation = validateFile(file);
     if (!validation.valid) {
@@ -97,7 +97,7 @@ export function ImageUploadDrag({ images, onChange, onRemoveExisting }: ImageUpl
     } else {
       toast.error(result.error || 'Fehler beim Hochladen');
     }
-  };
+  }, [images, onChange]);
 
   const handleDrop = useCallback(
     async (e: React.DragEvent) => {
@@ -136,7 +136,7 @@ export function ImageUploadDrag({ images, onChange, onRemoveExisting }: ImageUpl
 
       setUploadingCount(0);
     },
-    [images, onChange]
+    [uploadFile]
   );
 
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {

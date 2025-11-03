@@ -52,10 +52,10 @@ export async function createCreation(input: CreateCreationInput) {
       .limit(1)
       .maybeSingle();
 
-    const nextOrder = maxOrderData ? (maxOrderData.display_order ?? 0) + 1 : 0;
+    const nextOrder = maxOrderData ? ((maxOrderData as any).display_order ?? 0) + 1 : 0;
 
     // Create creation
-    const creationData: Database['public']['Tables']['creations']['Insert'] = {
+    const creationData = {
       title: input.title,
       slug,
       description: input.description,
@@ -446,9 +446,10 @@ export async function reorderCreations(creationIds: string[]) {
 
     // Update display_order for each creation
     for (let i = 0; i < creationIds.length; i++) {
-      const { error } = await supabase
-        .from('creations')
-        .update({ display_order: i } as any)
+      const updateData: any = { display_order: i };
+      const { error } = await (supabase
+        .from('creations') as any)
+        .update(updateData)
         .eq('id', creationIds[i]);
 
       if (error) {
