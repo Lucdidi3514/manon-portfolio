@@ -31,7 +31,7 @@ export async function getPublishedCreations(categoryId?: string) {
       images:creation_images(*)
     `)
     .eq('status', 'published')
-    .order('published_at', { ascending: false });
+    .order('display_order', { ascending: true });
 
   if (categoryId) {
     query = query.eq('category_id', categoryId);
@@ -53,7 +53,7 @@ export async function getFeaturedCreations(limit: number = 6) {
     `)
     .eq('status', 'published')
     .eq('featured', true)
-    .order('published_at', { ascending: false })
+    .order('display_order', { ascending: true })
     .limit(limit);
 
   if (error) throw error;
@@ -69,7 +69,7 @@ export async function getLatestCreations(limit: number = 6) {
       images:creation_images(*)
     `)
     .eq('status', 'published')
-    .order('published_at', { ascending: false })
+    .order('display_order', { ascending: true })
     .limit(limit);
 
   if (error) throw error;

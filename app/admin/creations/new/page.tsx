@@ -41,6 +41,13 @@ export default function NewCreationPage() {
     try {
       const formData = new FormData(e.currentTarget);
 
+      // Validate category
+      if (!selectedCategory) {
+        toast.error('Bitte wählen Sie eine Kategorie aus');
+        setIsSubmitting(false);
+        return;
+      }
+
       // Validate images
       if (images.length === 0) {
         toast.error('Bitte fügen Sie mindestens ein Bild hinzu');
@@ -58,7 +65,7 @@ export default function NewCreationPage() {
       const result = await createCreation({
         title: formData.get('title') as string,
         description: formData.get('description') as string || '',
-        category_id: selectedCategory || undefined,
+        category_id: selectedCategory,
         materials: [],
         sizes: [],
         colors: [],
@@ -115,10 +122,10 @@ export default function NewCreationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category_id">Kategorie</Label>
+                <Label htmlFor="category_id">Kategorie *</Label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Kategorie wählen (optional)" />
+                    <SelectValue placeholder="Kategorie wählen" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -128,9 +135,6 @@ export default function NewCreationPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-sm text-muted-foreground">
-                  Optional - leer lassen für keine Kategorie
-                </p>
               </div>
 
               <div className="space-y-2">

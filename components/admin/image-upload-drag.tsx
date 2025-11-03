@@ -2,9 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { X, Upload, Loader2, Image as ImageIcon, Star } from 'lucide-react';
+import { X, Upload, Loader2, Image as ImageIcon, Star, ChevronUp, ChevronDown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { uploadImage, deleteImage } from '@/lib/supabase/storage-actions';
@@ -295,7 +293,7 @@ export function ImageUploadDrag({ images, onChange, onRemoveExisting }: ImageUpl
               Hochgeladene Bilder ({images.length})
             </h3>
             <p className="text-sm text-muted-foreground">
-              Zum Neuordnen ziehen
+              Verwenden Sie die Pfeile zum Neuordnen
             </p>
           </div>
 
@@ -321,18 +319,7 @@ export function ImageUploadDrag({ images, onChange, onRemoveExisting }: ImageUpl
                   </div>
 
                   {/* Image Details */}
-                  <div className="flex-1 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`alt-${index}`}>Alternativtext *</Label>
-                      <Input
-                        id={`alt-${index}`}
-                        value={image.alt_text}
-                        onChange={(e) => updateImage(index, 'alt_text', e.target.value)}
-                        placeholder="Beschreiben Sie das Bild..."
-                        required
-                      />
-                    </div>
-
+                  <div className="flex-1 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {!image.is_primary && (
                         <Button
@@ -345,25 +332,29 @@ export function ImageUploadDrag({ images, onChange, onRemoveExisting }: ImageUpl
                           Als Hauptbild festlegen
                         </Button>
                       )}
+                    </div>
 
-                      <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-1">
                         <Button
                           type="button"
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => moveImage(index, Math.max(0, index - 1))}
                           disabled={index === 0}
+                          className="h-8 px-3"
                         >
-                          ↑
+                          <ChevronUp className="h-4 w-4" />
                         </Button>
                         <Button
                           type="button"
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => moveImage(index, Math.min(images.length - 1, index + 1))}
                           disabled={index === images.length - 1}
+                          className="h-8 px-3"
                         >
-                          ↓
+                          <ChevronDown className="h-4 w-4" />
                         </Button>
                       </div>
 
@@ -372,7 +363,7 @@ export function ImageUploadDrag({ images, onChange, onRemoveExisting }: ImageUpl
                         variant="ghost"
                         size="sm"
                         onClick={() => removeImage(index)}
-                        className="ml-auto text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <X className="h-4 w-4 mr-2" />
                         Löschen

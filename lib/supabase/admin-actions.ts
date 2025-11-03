@@ -44,6 +44,16 @@ export async function createCreation(input: CreateCreationInput) {
     const slug = generateSlug(input.title);
     console.log('Generated slug:', slug);
 
+    // Get the max display_order to add new creation at the end
+    const { data: maxOrderData } = await supabase
+      .from('creations')
+      .select('display_order')
+      .order('display_order', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const nextOrder = maxOrderData ? (maxOrderData.display_order ?? 0) + 1 : 0;
+
     // Create creation
     const creationData: Database['public']['Tables']['creations']['Insert'] = {
       title: input.title,
@@ -56,6 +66,7 @@ export async function createCreation(input: CreateCreationInput) {
       featured: input.featured,
       status: input.status,
       published_at: input.status === 'published' ? new Date().toISOString() : null,
+      display_order: nextOrder,
     };
 
     const { data: creation, error: creationError } = await supabase
@@ -126,6 +137,32 @@ export async function getCategories() {
 
   if (error) {
     console.error('Error fetching categories:', error);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getAllCreations() {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('creations')
+    .select(`
+      id,
+      title,
+      slug,
+      status,
+      featured,
+      created_at,
+      published_at,
+      display_order,
+      category:categories(name)
+    `)
+    .order('display_order', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching creations:', error);
     return [];
   }
 
@@ -383,6 +420,55 @@ export async function deleteCreation(creationId: string) {
     return { success: true };
   } catch (error: any) {
     console.error('Unexpected error in deleteCreation:', error);
+    return {
+      success: false,
+      error: `Unerwarteter Fehler: ${error?.message || 'Unbekannter Fehler'}`
+    };
+  }
+}
+
+/**
+ * Reorder creations by updating their display_order
+ */
+export async function reorderCreations(creationIds: string[]) {
+  const supabase = createClient();
+
+  try {
+    console.log('Reordering creations:', creationIds);
+
+    // Check authentication
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      console.error('User not authenticated');
+      return { success: false, error: 'Nicht authentifiziert' };
+    }
+
+    // Update display_order for each creation
+    for (let i = 0; i < creationIds.length; i++) {
+      const { error } = await supabase
+        .from('creations')
+        .update({ display_order: i } as any)
+        .eq('id', creationIds[i]);
+
+      if (error) {
+        console.error(`Error updating display_order for creation ${creationIds[i]}:`, error);
+        return {
+          success: false,
+          error: `Fehler beim Neuordnen: ${error.message}`
+        };
+      }
+    }
+
+    // Revalidate paths
+    revalidatePath('/');
+    revalidatePath('/creations');
+    revalidatePath('/admin/creations');
+
+    console.log('Creations reordered successfully');
+    return { success: true };
+  } catch (error: any) {
+    console.error('Unexpected error in reorderCreations:', error);
     return {
       success: false,
       error: `Unerwarteter Fehler: ${error?.message || 'Unbekannter Fehler'}`

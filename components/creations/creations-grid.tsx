@@ -1,38 +1,86 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CreationCard } from './creation-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Category, CreationWithDetails } from '@/lib/supabase/types';
-import { Filter } from 'lucide-react';
+import { Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CreationsGridProps {
   categories: Category[];
   creations: CreationWithDetails[];
+  initialPage?: number;
+  initialCategory?: string | null;
 }
 
 const ITEMS_PER_PAGE = 12;
 
-export function CreationsGrid({ categories, creations }: CreationsGridProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+export function CreationsGrid({ categories, creations, initialPage = 1, initialCategory = null }: CreationsGridProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory);
+  const [currentPage, setCurrentPage] = useState(initialPage);
 
   const filteredCreations = useMemo(() => {
     if (!selectedCategory) return creations;
     return creations.filter((creation) => creation.category_id === selectedCategory);
   }, [creations, selectedCategory]);
 
-  const visibleCreations = filteredCreations.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredCreations.length;
+  const totalPages = Math.ceil(filteredCreations.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const visibleCreations = filteredCreations.slice(startIndex, endIndex);
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
-  };
+  // Update URL when page or category changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (currentPage > 1) params.set('page', currentPage.toString());
+    if (selectedCategory) params.set('category', selectedCategory);
+
+    const newUrl = params.toString() ? `/creations?${params.toString()}` : '/creations';
+    router.replace(newUrl, { scroll: false });
+  }, [currentPage, selectedCategory, router]);
 
   const handleCategoryChange = (categoryId: string | null) => {
     setSelectedCategory(categoryId);
-    setVisibleCount(ITEMS_PER_PAGE);
+    setCurrentPage(1); // Reset to first page when category changes
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push(-1); // Ellipsis
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push(-1);
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push(-1);
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push(-1);
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
   };
 
   if (creations.length === 0) {
@@ -82,8 +130,13 @@ export function CreationsGrid({ categories, creations }: CreationsGridProps) {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Zeige {visibleCreations.length} von {filteredCreations.length} Kreationen
+          Zeige {startIndex + 1}-{Math.min(endIndex, filteredCreations.length)} von {filteredCreations.length} Kreationen
         </p>
+        {totalPages > 1 && (
+          <p className="text-sm text-muted-foreground">
+            Seite {currentPage} von {totalPages}
+          </p>
+        )}
       </div>
 
       {filteredCreations.length === 0 ? (
@@ -100,11 +153,49 @@ export function CreationsGrid({ categories, creations }: CreationsGridProps) {
             ))}
           </div>
 
-          {hasMore && (
-            <div className="flex justify-center pt-8">
-              <Button onClick={handleLoadMore} variant="outline" size="lg">
-                Mehr laden
-              </Button>
+          {totalPages > 1 && (
+            <div className="flex flex-col items-center gap-4 pt-8">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="sm"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Zurück
+                </Button>
+
+                <div className="flex gap-1">
+                  {getPageNumbers().map((page, index) => (
+                    page === -1 ? (
+                      <span key={`ellipsis-${index}`} className="px-3 py-2 text-muted-foreground">
+                        ...
+                      </span>
+                    ) : (
+                      <Button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        variant={currentPage === page ? 'default' : 'outline'}
+                        size="sm"
+                        className="min-w-[40px]"
+                      >
+                        {page}
+                      </Button>
+                    )
+                  ))}
+                </div>
+
+                <Button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  size="sm"
+                >
+                  Weiter
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
             </div>
           )}
         </>

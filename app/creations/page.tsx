@@ -28,11 +28,18 @@ function LoadingSkeleton() {
   );
 }
 
-async function CreationsContent() {
+interface CreationsContentProps {
+  searchParams: { page?: string; category?: string };
+}
+
+async function CreationsContent({ searchParams }: CreationsContentProps) {
   const [categories, creations] = await Promise.all([
     getCategories(),
     getPublishedCreations(),
   ]);
+
+  const currentPage = parseInt(searchParams.page || '1', 10);
+  const selectedCategory = searchParams.category || null;
 
   return (
     <Container className="py-12">
@@ -45,15 +52,20 @@ async function CreationsContent() {
         </p>
       </div>
 
-      <CreationsGrid categories={categories} creations={creations} />
+      <CreationsGrid
+        categories={categories}
+        creations={creations}
+        initialPage={currentPage}
+        initialCategory={selectedCategory}
+      />
     </Container>
   );
 }
 
-export default function CreationsPage() {
+export default function CreationsPage({ searchParams }: { searchParams: { page?: string; category?: string } }) {
   return (
     <Suspense fallback={<LoadingSkeleton />}>
-      <CreationsContent />
+      <CreationsContent searchParams={searchParams} />
     </Suspense>
   );
 }

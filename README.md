@@ -11,6 +11,12 @@ Ce portfolio est conçu pour être simple et épuré, mettant en valeur les cré
 ### 📱 Interface publique
 - **Hero section épuré** : Design centré et minimaliste mettant l'accent sur le message principal
 - **Galerie de créations** : Affichage élégant des œuvres avec images en carrousel
+- **Pagination intelligente** :
+  - 12 créations par page pour un chargement rapide
+  - Navigation par numéros de page (1, 2, 3...)
+  - Boutons Précédent/Suivant
+  - **Mémorisation de la page** : Retour à la même page après consultation d'une création
+  - URL persistante (ex: `/creations?page=2`)
 - **Catégories** : Organisation des créations par thème
 - **Design responsive** : Expérience optimale sur mobile, tablette et desktop
 - **Orientation d'images optimisée** : Affichage correct des images sur tous les appareils
@@ -20,14 +26,17 @@ Ce portfolio est conçu pour être simple et épuré, mettant en valeur les cré
 
 ### 🛠️ Panel d'administration
 - **Interface intuitive** : Gestion complète du contenu sans toucher au code
-- **Upload d'images par drag & drop** : Interface moderne et fluide
-- **Validation stricte des images** :
-  - Formats autorisés : **JPG, PNG, WebP uniquement**
-  - Taille maximale : **5MB par image**
+- **Upload d'images simplifié** :
+  - Upload par drag & drop : Interface moderne et fluide
+  - **Pas de texte alternatif obligatoire** : Interface épurée, focus sur l'image
+  - **Réorganisation facile** : Boutons flèches haut/bas pour changer l'ordre
+  - Validation stricte : JPG, PNG, WebP uniquement (max 5MB)
   - Validation côté client ET serveur
   - Messages d'erreur clairs et détaillés
 - **Gestion des créations** :
+  - **Catégorie obligatoire** : Impossible d'oublier d'assigner une catégorie
   - Création, édition et suppression complète
+  - **Réorganisation par drag** : Changez l'ordre d'affichage avec flèches ⬆️⬇️
   - Organisation des images (ordre, image principale)
   - Statut brouillon/publié
   - Badge "featured" pour les créations en vedette
@@ -90,9 +99,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=votre_cle_anon_supabase
 Exécuter les migrations SQL dans votre projet Supabase (voir dossier `supabase/sql/`)
 
 #### Tables principales :
-- `categories` : Catégories de créations
-- `creations` : Créations avec statut (draft/published)
+- `categories` : Catégories de créations (avec `display_order`)
+- `creations` : Créations avec statut (draft/published) et **`display_order`** pour l'ordre manuel
 - `creation_images` : Images associées aux créations
+
+⚠️ **Important** : Exécuter la migration `20251103000000_add_display_order_to_creations.sql` pour activer le système de réorganisation
 
 #### Storage :
 - Créer un bucket nommé `photos-article`
@@ -125,18 +136,19 @@ Ouvrir [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 2. Cliquer sur **Neue Kreation** (Nouvelle création)
 3. Remplir les informations :
    - **Titre** : Nom de la création (requis)
-   - **Catégorie** : Optionnel
+   - **Catégorie** : **OBLIGATOIRE** - Choisir une catégorie (empêche les oublis)
    - **Description** : Description détaillée
 4. **Ajouter des images** :
    - Glisser-déposer les images ou cliquer pour sélectionner
    - Formats acceptés : **JPG, PNG, WebP** (max 5MB)
    - Définir l'image principale (étoile)
-   - Réorganiser l'ordre avec les flèches
-   - Ajouter un texte alternatif pour chaque image
+   - **Réorganiser l'ordre** : Utilisez les flèches ⬆️⬇️ pour changer l'ordre
 5. **Options de publication** :
    - Cocher **Veröffentlicht** pour publier immédiatement
    - Cocher **Als hervorgehoben markieren** pour mettre en vedette
 6. Cliquer sur **Kreation erstellen**
+
+💡 **Astuce** : Les nouvelles créations apparaissent en fin de liste. Utilisez les flèches dans la liste pour les réorganiser.
 
 ### Modifier une création
 
@@ -146,10 +158,19 @@ Ouvrir [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 4. **Gérer les images** :
    - Supprimer des images existantes (X rouge)
    - Ajouter de nouvelles images
-   - Réorganiser l'ordre
+   - Réorganiser l'ordre avec les flèches ⬆️⬇️
 5. Cliquer sur **Änderungen speichern**
 
 ⚠️ **Important** : La suppression d'images est définitive et supprime également les fichiers du storage.
+
+### Réorganiser l'ordre des créations
+
+1. Aller dans **Kreationen**
+2. Utiliser les **flèches ⬆️⬇️** à droite de chaque création
+3. L'ordre est **sauvegardé automatiquement**
+4. L'ordre s'applique **immédiatement sur le site public**
+
+💡 **Utilité** : Mettez en avant vos meilleures créations en les plaçant en premier dans la liste.
 
 ### Supprimer une création
 
@@ -371,11 +392,46 @@ Tous droits réservés © 2025 Luc Didion
 - Meilleure hiérarchie visuelle et focus sur le CTA
 - Chargement plus rapide (moins d'images à fetcher)
 
+**Catégorie obligatoire pour les créations** : ✅ Ajouté
+- Impossible de créer/modifier une création sans catégorie
+- Message d'erreur clair si catégorie non sélectionnée
+- Garantit une organisation cohérente du contenu
+
+**Interface d'upload d'images simplifiée** : ✅ Amélioré
+- Suppression du champ texte alternatif obligatoire
+- Interface épurée focalisée sur les images
+- Boutons flèches ⬆️⬇️ plus visibles pour réorganiser
+- Expérience utilisateur plus fluide
+
+**Système de réorganisation des créations** : ✅ Ajouté
+- Ajout du champ `display_order` en base de données
+- Flèches ⬆️⬇️ dans la liste admin pour réorganiser
+- Ordre personnalisé reflété immédiatement sur le site public
+- Sauvegarde automatique de l'ordre
+
+**Pagination avec mémorisation** : ✅ Ajouté
+- Remplacement du bouton "Mehr laden" par une vraie pagination
+- 12 créations par page
+- Numéros de pages cliquables (1, 2, 3...)
+- URL avec paramètre de page (`?page=2`)
+- **Retour à la même page** après consultation d'une création
+- Fini l'effet "retour à la case départ" !
+
 ## 🎉 Remerciements
 
 Développé avec passion par Luc Didion avec l'assistance de [Claude Code](https://claude.com/claude-code).
 
 ---
 
-**Version actuelle** : 2.1.0
-**Dernière mise à jour** : Novembre 2025
+**Version actuelle** : 2.2.0
+**Dernière mise à jour** : 3 Novembre 2025
+
+### 🆕 Nouveautés version 2.2.0
+- ✨ Catégorie obligatoire pour toutes les créations
+- ✨ Upload d'images simplifié sans texte alternatif obligatoire
+- ✨ Réorganisation des images avec flèches ⬆️⬇️ améliorées
+- ✨ Système de réorganisation manuelle des créations dans l'admin
+- ✨ Migration base de données : ajout du champ `display_order`
+- ✨ Pagination intelligente (12 items/page) avec mémorisation de position
+- ✨ URL persistante pour retourner à la même page
+- ⚡ Meilleure expérience utilisateur avec 50+ créations
